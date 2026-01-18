@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TravelBuddy - Smart Tourist Safety System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* Custom styles for the green theme and safety features */
+        .navbar-custom-green {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+        .navbar-custom-green .navbar-brand,
+        .navbar-custom-green .nav-link,
+        .navbar-custom-green .dropdown-toggle,
+        .navbar-custom-green .navbar-toggler-icon {
+            color: white !important;
+        }
+        .navbar-custom-green .navbar-brand small {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        .navbar-custom-green .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .navbar-custom-green .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+        .navbar-custom-green .btn-outline-primary {
+            color: white;
+            border-color: white;
+        }
+        .navbar-custom-green .btn-outline-primary:hover {
+            background-color: white;
+            color: #27ae60;
+        }
+
+        /* Badge styles */
+        .safety-score, .digital-id-badge, .tracking-status, .admin-badge {
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0 2px;
+        }
+        .safety-score { background: #28a745; }
+        .digital-id-badge { background: #6f42c1; }
+        .tracking-status { background: #17a2b8; animation: pulse 2s infinite; }
+        .admin-badge { background: #dc3545; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .panic-button {
+            position: fixed; bottom: 25px; right: 25px; z-index: 1000;
+            width: 80px; height: 80px; border-radius: 50%;
+            font-size: 11px; font-weight: bold;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            animation: safety-pulse 3s infinite;
+        }
+        @keyframes safety-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Flash messages */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Fixed navbar spacing */
+        body { padding-top: 76px; }
+        
+        /* Offcanvas custom styling */
+        .offcanvas-header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+        
+        .offcanvas-body .nav-link {
+            color: #495057;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 3px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .offcanvas-body .nav-link:hover {
+            background-color: #27ae60;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-section-header {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px 16px 8px;
+            margin-top: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar with custom green background -->
+    <nav class="navbar navbar-custom-green border-bottom fixed-top">
+        <div class="container-fluid">
+            <!-- Menu Button (Only for Tourists) -->
+            {% if current_user.is_authenticated and current_user.role == 'tourist' %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                <span class="navbar-toggler-icon"></span>
+                <span class="ms-2 text-white">Menu</span>
+            </button>
+            {% endif %}
+
+            <!-- Brand -->
+            <a class="navbar-brand mx-auto" href="{{ url_for('main_bp.home') }}">
+                <i class="fas fa-shield-alt me-2"></i>TravelBuddy <small>Safety System</small>
+            </a>
+
+            <div class="d-flex align-items-center">
+                {% if current_user.is_authenticated %}
+                    <!-- Safety Status Indicators -->
+                    <div class="d-flex align-items-center gap-2 me-3">
+                        <!-- Safety Score -->
+                        {% set safety_score = current_user.safety_score if current_user.safety_score is not none and current_user.safety_score > 0 else 100 %}
+                        <span class="safety-score" title="Safety Score: {{ '%.0f'|format(safety_score) }}%">
+                            <i class="fas fa-shield-alt me-1"></i>{{ "%.0f"|format(safety_score) }}%
+                        </span>
+
+                        <!-- Digital ID Badge -->
+                        {% if current_user.username and current_user.username != '' %}
+                            <span class="digital-id-badge" title="Digital Tourist ID">
+                                <i class="fas fa-id-card me-1"></i>{{ current_user.username }}
+                            </span>
+                        {% endif %}
+
+                        <!-- Live Tracking -->
+                        {% if current_user.is_real_time_tracking_enabled %}
+                            <span class="tracking-status" title="Live Tracking Active">
+                                <i class="fas fa-location-dot me-1"></i>Live
+                            </span>
+                        {% endif %}
+
+                        <!-- Admin Badge -->
+                        {% if current_user.role == 'admin' %}
+                            <span class="admin-badge" title="Admin User">
+                                <i class="fas fa-crown me-1"></i>Admin
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="dropdown">
+                        <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-2"></i>{{ current_user.name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard.profile') }}">
+                                <i class="fas fa-user-edit me-2"></i>Profile
+                            </a></li>
+                            
+                            {% if current_user.role == 'admin' %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="dropdown-header text-primary">
+                                    <i class="fas fa-crown me-2"></i>Admin Functions
+                                </li>
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.admin_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.safety_map') }}">
+                                    <i class="fas fa-map me-2"></i>Safety Map
+                                </a></li>
+                            {% else %}
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.safety_settings') }}">
+                                    <i class="fas fa-cog me-2"></i>Safety Settings
+                                </a></li>
+                            {% endif %}
+                            
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <!-- Login/Register buttons for non-authenticated users -->
+                    <a class="btn btn-outline-light me-2" href="{{ url_for('auth.login') }}">Login</a>
+                    <a class="btn btn-light" href="{{ url_for('auth.register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Offcanvas Sidebar (Only for Tourists) -->
+    {% if current_user.is_authenticated and current_user.role == 'tourist' %}
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
+                <i class="fas fa-compass me-2"></i>Tourist Menu
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <!-- Dashboard & Trips -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.show_dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.create_trip') }}">
+                        <i class="fas fa-plus me-2"></i>Create/Edit Trip
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('destination.destination_search') }}">
+                        <i class="fas fa-search-location me-2"></i>Destination Info
+                    </a>
+                </li>
+
+                <!-- Trip Tools Section -->
+                <div class="nav-section-header">
+                    <i class="fas fa-suitcase me-2"></i>Trip Tools
+                </div>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.packing_list') }}">
+                        <i class="fas fa-suitcase me-2"></i>Packing List
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.budget_estimator') }}">
+                        <i class="fas fa-calculator me-2"></i>Budget Estimator
+                    </a>
+                </li>
+
+                <!-- Safety Features Section -->
+                <div class="nav-section-header">
+                    <i class="fas fa-shield-alt me-2"></i>Safety Features
+                </div>
+               
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.report_safety_alert') }}">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Report Alert
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.safety_map') }}">
+                        <i class="fas fa-map me-2"></i>Safety Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard.safety_settings') }}">
+                        <i class="fas fa-cog me-2"></i>Safety Settings
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0" style="z-index: 1070; margin-top: 80px; margin-right: 20px;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {% if category == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif category == 'danger' or category == 'error' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif category == 'warning' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Floating Panic Button (Only for Tourists) -->
+    {% if current_user.is_authenticated and current_user.role == 'tourist' %}
+        <button class="btn btn-danger panic-button" onclick="triggerPanic()" title="Emergency SOS">
+            <i class="fas fa-exclamation-triangle d-block"></i>
+            <small class="d-block mt-1">SOS</small>
+        </button>
+    {% endif %}
+
+  
+<!-- ================= PAGE CONTENT ================= -->
+<div class="container-fluid mt-4">
+    {% block content %}{% endblock %}
+</div>
+   <!-- SOS JavaScript -->
+<!-- ================= JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ SOS SCRIPT (IMPORTANT) -->
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
