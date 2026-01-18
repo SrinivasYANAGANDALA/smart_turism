@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logging Out - TravelBuddy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background:rgb(40, 182, 40) ;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .logout-message {
+      background-color:white;
+      color: green;
+      padding: 40px 60px;
+      border-radius: 30px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+    }
+    .logout-message h1 {
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    .logout-message p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
+    .btn-home {
+      background-color: green;
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(105, 100, 98, 0.6);
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+    .btn-home:hover {
+      background-color: #1d1c1c;
+      box-shadow: 0 6px 20px rgba(105, 103, 102, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="logout-message">
+    <h1>See you soon!</h1>
+    <p>You have been successfully logged out of TravelBuddy.</p>
+    <a href="/" class="btn-home">Return to Home</a>
+  </div>
+</body>
+</html>

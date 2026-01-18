@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Safety Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2><i class="fas fa-shield-alt me-2"></i>Safety Dashboard</h2>
+            <p class="text-muted">Monitor your safety status and alerts</p>
+        </div>
+    </div>
+    
+    <!-- Safety Score Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="card-title">{{ "%.0f"|format(safety_score) }}%</h3>
+                    <p class="card-text">Safety Score</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h3 class="card-title">{{ total_alerts }}</h3>
+                    <p class="card-text">Total Alerts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-white">
+                <div class="card-body">
+                    <h3 class="card-title">{{ active_alerts }}</h3>
+                    <p class="card-text">Active Alerts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active</h5>
+                    <p class="card-text">Current Status</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Real-time Tracking</h5>
+                    <p class="card-text">Control your location tracking settings for enhanced safety.</p>
+                    <form method="POST" action="{{ url_for('safety.toggle_tracking') }}" style="display: inline">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-location-dot me-1"></i>Toggle Tracking
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Emergency Features</h5>
+                    <p class="card-text">Access emergency contacts and panic button settings.</p>
+                    <button class="btn btn-danger" onclick="testPanicButton()">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Test Panic Button
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Safety Information -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Safety Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-shield-alt fa-2x text-success me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Digital Tourist ID</h6>
+                                    <small class="text-muted">
+                                        {% if current_user.username and current_user.username.startswith('DT') %}
+                                            Active: {{ current_user.username }}
+                                        {% else %}
+                                            Standard Account
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-location-dot fa-2x text-info me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Location Tracking</h6>
+                                    <small class="text-muted">
+                                        {% if current_user.is_real_time_tracking_enabled %}
+                                            Enabled
+                                        {% else %}
+                                            Disabled
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-phone-alt fa-2x text-warning me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Emergency Contacts</h6>
+                                    <small class="text-muted">
+                                        {% if current_user.emergency_contact_name %}
+                                            {{ current_user.emergency_contact_name }}
+                                        {% else %}
+                                            Not configured
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6>Available Safety Features:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Emergency Panic Button</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Real-time Location Tracking</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Geo-fencing Alerts</li>
+                        <li><i class="fas fa-check text-success me-2"></i>AI Anomaly Detection</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Multilingual Emergency Support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testPanicButton() {
+    if (confirm('This will test the panic button. Are you sure?')) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                fetch('/safety/api/panic_button', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        test: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Panic button test successful!\n\nIn a real emergency, this would alert:\n• Local authorities\n• Your emergency contacts\n• Tourism department');
+                    }
+                });
+            });
+        }
+    }
+}
+</script>
+{% endblock %}

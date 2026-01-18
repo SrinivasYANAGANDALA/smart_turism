@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Safety Settings{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-cog me-2"></i>Safety Settings</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="tracking_enabled" 
+                                       name="tracking_enabled" 
+                                       {% if current_user.is_real_time_tracking_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="tracking_enabled">
+                                    Enable Real-time Location Tracking
+                                </label>
+                            </div>
+                            <div class="form-text">Allow the system to track your location for safety monitoring.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="preferred_language" class="form-label">Preferred Language</label>
+                            <select class="form-select" id="preferred_language" name="preferred_language">
+                                <option value="en" {% if current_user.preferred_language == 'en' %}selected{% endif %}>English</option>
+                                <option value="hi" {% if current_user.preferred_language == 'hi' %}selected{% endif %}>हिन्दी</option>
+                                <option value="as" {% if current_user.preferred_language == 'as' %}selected{% endif %}>অসমীয়া</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

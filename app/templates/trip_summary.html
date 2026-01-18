@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - TravelBuddy{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Summary - TravelBuddy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background: linear-gradient(to right, #84fab0, #8fd3f4);
+            font-family: 'Quicksand', sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00796b; /* Dark teal heading */
+        }
+        section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        section h3 {
+            color: #004d40; /* Even darker teal */
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        .summary-block {
+            background: #f2f2f2;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .share-link {
+            background-color: #00cec9;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .share-link:hover {
+            background-color: #00b0aa;
+        }
+        .summary-list-item {
+            margin-bottom: 5px;
+        }
+        .ai-suggestions-summary-box {
+            background-color: #e0f2f7; /* Light blue for AI suggestions */
+            border: 1px solid #b2ebf2;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        .ai-suggestions-summary-box h4 {
+            color: #0097a7; /* Darker blue for AI heading */
+            margin-bottom: 10px;
+        }
+        .ai-suggestions-summary-box ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .ai-suggestions-summary-box li {
+            margin-bottom: 3px;
+            color: #00bcd4; /* Blue text for AI list items */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Trip Summary for {{ trip.title }}</h2>
+
+        <section>
+            <h3>Trip Details</h3>
+            <div class="summary-block">
+                <p><strong>Destination:</strong> {{ trip.destination }}</p>
+                {# Using _obj properties which are datetime.date objects #}
+                <p><strong>Dates:</strong> {% if trip.start_date_obj %}{{ trip.start_date_obj.strftime('%Y-%m-%d') }}{% else %}N/A{% endif %} to {% if trip.end_date_obj %}{{ trip.end_date_obj.strftime('%Y-%m-%d') }}{% else %}N/A{% endif %}</p>
+                <p><strong>Estimated Budget:</strong> ₹{{ "{:,.2f}".format(total_budget) }}</p>
+            </div>
+        </section>
+
+        <section>
+            <h3>Itinerary</h3>
+            <div class="summary-block">
+                {% if itinerary %}
+                    {% for day in itinerary %}
+                        <p class="summary-list-item"><strong>Day {{ loop.index }} ({{ day.date }}):</strong></p>
+                        <ul>
+                            {% for activity in day.activities %}
+                                <li>{{ activity }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No itinerary planned yet.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section>
+            <h3>Packing List</h3>
+            <div class="summary-block">
+                {% if packing_items %}
+                    <h4>Your Custom Packing Items:</h4>
+                    <ul>
+                        {% for item in packing_items %}
+                            <li>{{ item.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No custom packing items added yet. You can add them on the Packing List page.</p>
+                {% endif %}
+
+                {# AI Generated Packing List for the Trip Summary #}
+                {% if ai_packing_list and ai_packing_list != ["AI suggestions not available for this trip: AI could not generate a detailed response for this request. This might be due to a complex query or temporary AI service limitations. Please try again or rephrase your request."] and ai_packing_list != ["AI suggestions not available due to date format issues for this trip."] %}
+                    <div class="ai-suggestions-summary-box">
+                        <h4>AI-Generated Suggestions for this trip:</h4>
+                        <ul>
+                            {% for item in ai_packing_list %}
+                                <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="mt-2 text-muted small">These are AI suggestions. For a full list and to add/remove items, visit the Packing List page.</p>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center mt-3">
+                        {% if ai_packing_list and ai_packing_list[0].startswith("AI suggestions not available:") %}
+                            {{ ai_packing_list[0] }}
+                        {% else %}
+                            AI packing suggestions for this trip could not be generated at this time.
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section>
+            <h3>Trip Notes</h3>
+            <div class="summary-block">
+                <p>{{ notes if notes else 'No specific notes for this trip yet.' }}</p>
+            </div>
+        </section>
+
+        <section style="text-align: center;">
+            <a href="{{ share_link }}" class="share-link" target="_blank">Share this Trip</a>
+        </section>
+    </div>
+</body>
+</html>
+{% endblock %}

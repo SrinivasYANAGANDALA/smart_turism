@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - TravelBuddy{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(to right, #e3f2fd, #bbdefb);
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+        margin-top: 50px;
+        max-width: 800px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #2196f3; /* Blue heading */
+    }
+
+    .list-group-item {
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-add, .btn-remove {
+        border-radius: 10px;
+        padding: 8px 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-add {
+        background-color: #66bb6a;
+        color: white;
+        border: none;
+    }
+
+    .btn-add:hover {
+        background-color: #43a047;
+    }
+
+    .btn-remove {
+        background-color: #ef5350;
+        color: white;
+        border: none;
+    }
+
+    .btn-remove:hover {
+        background-color: #c62828;
+    }
+
+    .form-control {
+        border-radius: 10px;
+    }
+
+    .ai-suggestions-box {
+        background-color: #e8f5e9; /* Light green for AI suggestions */
+        border: 1px solid #c8e6c9;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: left;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .ai-suggestions-box h3 {
+        color: #388e3c; /* Darker green for AI heading */
+        margin-bottom: 15px;
+    }
+
+    .ai-suggestions-box ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    .ai-suggestions-box li {
+        margin-bottom: 5px;
+        color: #4caf50; /* Green text for AI list items */
+    }
+    /* Loading spinner styles */
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px; /* Adjust as needed */
+    }
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        color: #2196f3; /* Blue spinner */
+    }
+</style>
+
+<div class="container">
+    <h2>Packing List</h2>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">
+                {% for message in messages %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {# Section for adding custom items #}
+    <form method="POST" class="d-flex gap-3 mb-4">
+        <input type="text" class="form-control" name="item" placeholder="Add an item" required>
+        <button type="submit" class="btn btn-add">Add</button>
+    </form>
+
+    {# Dropdown to select a trip for AI suggestions #}
+    <div class="mb-4">
+        <label for="tripSelect" class="form-label">Get AI Suggestions for Trip:</label>
+        <select class="form-select" id="tripSelect" onchange="window.location.href = this.value;">
+            <option value="{{ url_for('dashboard.packing_list') }}" {% if not selected_trip_id %}selected{% endif %}>
+                {% if user_trips %}Select a Trip...{% else %}No Trips Available{% endif %}
+            </option>
+            {% for trip in user_trips %}
+                <option value="{{ url_for('dashboard.packing_list', trip_id=trip.id) }}" {% if selected_trip_id == trip.id %}selected{% endif %}>
+                    {{ trip.title }} ({{ trip.destination }}) - {{ trip.start_date }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {# AI Suggestions Display #}
+    <div id="aiSuggestionsSection">
+        {% if selected_trip_id and ai_packing_list and ai_packing_list != ["AI suggestions not available for this trip: AI could not generate a detailed response for this request. This might be due to a complex query or temporary AI service limitations. Please try again or rephrase your request."] and ai_packing_list != ["No trip selected or available to generate AI packing suggestions."] %}
+        <div class="ai-suggestions-box">
+            <h3>AI-Generated Packing Suggestions:</h3>
+            <ul>
+                {% for item in ai_packing_list %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            <p class="mt-3 text-muted small">These suggestions are based on your selected trip. Add them to your list above if helpful!</p>
+        </div>
+        {% else %}
+        <div class="text-muted text-center mb-4" id="aiLoadingMessage">
+            {% if selected_trip_id %}
+                <p>Generating AI suggestions for your selected trip...</p>
+                <div class="spinner-container">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading AI suggestions...</span>
+                    </div>
+                </div>
+            {% else %}
+                <p>Select a trip from the dropdown above to get AI packing suggestions.</p>
+            {% endif %}
+            {% if ai_packing_list and ai_packing_list == ["AI suggestions not available for this trip: AI could not generate a detailed response for this request. This might be due to a complex query or temporary AI service limitations. Please try again or rephrase your request."] %}
+                <p class="text-danger mt-2">{{ ai_packing_list[0] }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <h3 class="mt-4">Your Custom Packing Items:</h3>
+    <ul class="list-group">
+        {% if current_packing_list %}
+            {% for item in current_packing_list %}
+                <li class="list-group-item">
+                    <span>{{ item.name }}</span>
+                    <form method="POST" action="{{ url_for('dashboard.delete_packing_item', item_id=item.id) }}">
+                        <button type="submit" class="btn btn-remove btn-sm">Remove</button>
+                    </form>
+                </li>
+            {% endfor %}
+        {% else %}
+            <li class="list-group-item text-muted">No custom items added yet for this trip.</li>
+        {% endif %}
+    </ul>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // This JavaScript will only hide the spinner after the initial page load IF
+        // AI suggestions are already rendered by Flask. If AI is still loading,
+        // or if there are no trips, the Flask template will already show the appropriate message/spinner.
+        const aiSuggestionsBox = document.querySelector('#aiSuggestionsSection .ai-suggestions-box');
+        const aiLoadingMessage = document.getElementById('aiLoadingMessage');
+        
+        if (aiSuggestionsBox && aiLoadingMessage) {
+            aiLoadingMessage.style.display = 'none';
+        }
+    });
+
+    // To show spinner when changing dropdown selection
+    const tripSelectElem = document.getElementById('tripSelect');
+    if (tripSelectElem) {
+        tripSelectElem.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue) { // Only show spinner if a trip is selected (not the "Select a Trip..." option)
+                const aiLoadingMessage = document.getElementById('aiLoadingMessage');
+                if (aiLoadingMessage) {
+                    aiLoadingMessage.style.display = 'block';
+                    aiLoadingMessage.innerHTML = `<p>Generating AI suggestions for your selected trip...</p>
+                                                <div class="spinner-container">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="visually-hidden">Loading AI suggestions...</span>
+                                                    </div>
+                                                </div>`;
+                }
+            }
+            // The actual page navigation is handled by onchange="window.location.href = this.value;" in the select tag.
+        });
+    }
+</script>
+{% endblock %}

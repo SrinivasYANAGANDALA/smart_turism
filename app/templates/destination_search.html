@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - TravelBuddy{% endblock %}
+
+{% block content %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Destination Search - TravelBuddy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url("https://wallpapers.com/images/hd/cold-fog-frozen-landscape-lekk2dqw4l0hzb0o.jpg") no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Arial', sans-serif;
+            color: white;
+        }
+
+        .container {
+            margin-top: 40px;
+            max-width: 960px;
+        }
+
+        .card, .weather-box {
+            background: transparent !important;
+            border: 3px solid white;
+            border-radius: 20px;
+            color: white;
+        }
+
+        .weather-box {
+            padding: 15px 18px;
+            box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
+        }
+
+        .weather-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            text-align: center;
+            height: 90px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .bg-temp  { background: linear-gradient(145deg, #f44336, #e57373); }
+        .bg-cond  { background: linear-gradient(145deg, #2196f3, #64b5f6); }
+        .bg-wind  { background: linear-gradient(145deg, #00bcd4, #4dd0e1); }
+        .bg-humid { background: linear-gradient(145deg, #4caf50, #81c784); }
+
+        .weather-tile .icon {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .weather-tile .label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+
+        .weather-tile .value {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        .spinner-border {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: white;
+        }
+
+        label, input, .form-label {
+            color: white;
+        }
+
+        input.form-control {
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid #ccc;
+            color: white;
+        }
+
+        input.form-control::placeholder {
+            color: #ddd;
+        }
+
+        input.form-control:focus {
+            background-color: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .text-muted {
+            color: #eee !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card p-3 shadow-sm" id="destinationCard">
+            <div class="row g-3">
+                <!-- Search Form -->
+                <div class="col-md-6">
+                    <div class="card h-100 p-3 shadow-sm">
+                        <h5 class="text-center text-primary">Search Destination</h5>
+                        <form method="POST" action="{{ url_for('destination.destination_search') }}" id="destinationSearchForm">
+                            <div class="mb-2">
+                                <label for="destinationInput" class="form-label">Destination Name</label>
+                                <input type="text" class="form-control" id="destinationInput" name="destination" placeholder="e.g., Paris, Tokyo" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" name="start_date">
+                            </div>
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="endDate" name="end_date">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" id="searchButton">Get Info</button>
+                        </form>
+                        <div id="loadingSpinner" class="spinner-container mt-3" style="display:none;">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Summary -->
+                <div class="col-md-6">
+                    <div class="card h-100 p-3 shadow-sm">
+                        <h5 class="text-center text-success">Quick Overview</h5>
+                        {% if weather_info and weather_info.temp %}
+                        <div class="weather-box">
+                            <h6 class="fw-bold mb-3 text-center">Weather Snapshot</h6>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="weather-tile bg-temp">
+                                        <span class="icon">🌡️</span>
+                                        <div class="label">Temp</div>
+                                        <div class="value">{{ weather_info.temp }}°C</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="weather-tile bg-cond">
+                                        <span class="icon">🌤️</span>
+                                        <div class="label">Condition</div>
+                                        <div class="value">{{ weather_info.condition }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="weather-tile bg-wind">
+                                        <span class="icon">🌬️</span>
+                                        <div class="label">Wind</div>
+                                        <div class="value">{{ weather_info.wind }} km/h</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="weather-tile bg-humid">
+                                        <span class="icon">💧</span>
+                                        <div class="label">Humidity</div>
+                                        <div class="value">{{ weather_info.humidity }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mt-3">No weather data available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination Description -->
+            {% if destination_info %}
+            <div class="card mt-3 shadow-sm p-3">
+                <h5 class="text-center text-info">Destination Overview</h5>
+                <p>{{ destination_info }}</p>
+            </div>
+            {% else %}
+            <div class="card mt-3 shadow-sm p-3" id="noResultsYet">
+                <p class="text-muted text-center">Enter a destination and click "Get Info" to see details.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const noResultsYet = document.getElementById('noResultsYet');
+            const resultsBox = document.getElementById('resultsBox');
+
+            if (noResultsYet) {
+                if ("{{ request.method }}" === "GET" && !resultsBox) {
+                    noResultsYet.style.display = 'block';
+                } else {
+                    noResultsYet.style.display = 'none';
+                }
+            }
+        });
+
+        document.getElementById('destinationSearchForm').addEventListener('submit', function () {
+            document.getElementById('searchButton').disabled = true;
+            document.getElementById('loadingSpinner').style.display = 'flex';
+
+            const noResultsYet = document.getElementById('noResultsYet');
+            if (noResultsYet) {
+                noResultsYet.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

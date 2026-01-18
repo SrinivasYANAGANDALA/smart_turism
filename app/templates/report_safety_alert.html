@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Report Safety Alert - TravelBuddy{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Report Safety Alert
+                    </h4>
+                    <small>Help keep fellow travelers safe by reporting incidents or concerns</small>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('dashboard.report_safety_alert') }}">
+                        <!-- Alert Type -->
+                        <div class="mb-3">
+                            <label for="alert_type" class="form-label">
+                                <i class="fas fa-tags me-2"></i>Alert Type
+                            </label>
+                            <select class="form-select" id="alert_type" name="alert_type" required>
+                                <option value="">Select alert type...</option>
+                                <option value="Crime">Crime / Theft</option>
+                                <option value="Health">Health / Medical</option>
+                                <option value="Natural">Natural Disaster</option>
+                                <option value="Transport">Transportation Issue</option>
+                                <option value="Scam">Tourist Scam</option>
+                                <option value="Environmental">Environmental Hazard</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Severity Level -->
+                        <div class="mb-3">
+                            <label for="severity" class="form-label">
+                                <i class="fas fa-exclamation-circle me-2"></i>Severity Level
+                            </label>
+                            <select class="form-select" id="severity" name="severity" required>
+                                <option value="">Select severity...</option>
+                                <option value="low" class="text-success">Low - General Advisory</option>
+                                <option value="medium" class="text-warning">Medium - Caution Advised</option>
+                                <option value="high" class="text-danger">High - Immediate Attention</option>
+                                <option value="critical" class="text-danger">Critical - Emergency</option>
+                            </select>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="latitude" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Latitude
+                                </label>
+                                <input type="number" step="any" class="form-control" id="latitude" name="latitude" placeholder="e.g., 12.9716">
+                                <small class="form-text text-muted">Optional - Click "Get Location" to auto-fill</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="longitude" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Longitude
+                                </label>
+                                <input type="number" step="any" class="form-control" id="longitude" name="longitude" placeholder="e.g., 77.5946">
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="getCurrentLocation()">
+                                        <i class="fas fa-crosshairs me-1"></i>Get Current Location
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="details" class="form-label">
+                                <i class="fas fa-file-text me-2"></i>Description
+                            </label>
+                            <textarea class="form-control" id="details" name="details" rows="4" required 
+                                    placeholder="Please provide detailed information about the incident or safety concern..."></textarea>
+                            <small class="form-text text-muted">The more details you provide, the better we can help other travelers</small>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="contact_allowed" name="contact_allowed">
+                                <label class="form-check-label" for="contact_allowed">
+                                    Allow authorities to contact me for additional information
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Anonymous Reporting -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="anonymous" name="anonymous">
+                                <label class="form-check-label" for="anonymous">
+                                    Report anonymously (your name will not be shared)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard.show_dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Safety Alert
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Safety Tips -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Safety Reporting Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Do Report:</h6>
+                            <ul class="small text-muted">
+                                <li>Criminal activities or threats</li>
+                                <li>Health hazards or medical emergencies</li>
+                                <li>Natural disasters or severe weather</li>
+                                <li>Transportation safety issues</li>
+                                <li>Tourist scams or fraud</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle text-primary me-2"></i>Remember:</h6>
+                            <ul class="small text-muted">
+                                <li>For immediate emergencies, contact local police</li>
+                                <li>Be specific with locations and details</li>
+                                <li>Include time and date of incident</li>
+                                <li>Your report helps protect other travelers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        const button = document.querySelector('button[onclick="getCurrentLocation()"]');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting Location...';
+        button.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+                document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+                
+                button.innerHTML = '<i class="fas fa-check text-success me-1"></i>Location Found';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            },
+            function(error) {
+                console.error('Geolocation error:', error);
+                button.innerHTML = '<i class="fas fa-times text-danger me-1"></i>Location Failed';
+                alert('Could not get your location. Please enter coordinates manually or check browser permissions.');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+</script>
+{% endblock %}

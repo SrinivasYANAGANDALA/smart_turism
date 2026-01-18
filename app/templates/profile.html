@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Edit Your Profile - TravelBuddy{% endblock %}
+
+{% block content %}
+<style>
+    body { background-color: #f8f9fa; }
+    .profile-container {
+        max-width: 900px;
+        margin: 50px auto;
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 2rem;
+    }
+    .profile-picture {
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border: 5px solid #4CAF50;
+        cursor: pointer;
+    }
+    .section-title {
+        color: #006400;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #4CAF50;
+        display: inline-block;
+    }
+    .update-btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container profile-container">
+<form action="{{ url_for('dashboard.profile') }}" method="POST" enctype="multipart/form-data">
+
+<!-- HEADER -->
+<div class="profile-header">
+    <img src="{{ url_for('static', filename='images/profiles/' + user.profile_image) }}"
+         class="profile-picture">
+    <div>
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+    </div>
+</div>
+
+<!-- PERSONAL INFO -->
+<h4 class="section-title">Personal Information</h4>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label>Full Name</label>
+        <input class="form-control" name="name" value="{{ user.name }}">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label>Email</label>
+        <input class="form-control" name="email" value="{{ user.email }}">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label>Username</label>
+        <input class="form-control" name="username" value="{{ user.username or '' }}">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label>Phone Number</label>
+        <input class="form-control" name="phone_number" value="{{ user.phone_number or '' }}">
+    </div>
+</div>
+
+<!-- SECURITY -->
+<h4 class="section-title mt-4">Security</h4>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label>New Password</label>
+        <input type="password" class="form-control" name="new_password">
+    </div>
+    <div class="col-md-6 mb-3">
+        <label>Confirm Password</label>
+        <input type="password" class="form-control" name="confirm_password">
+    </div>
+</div>
+
+<!-- SAFETY SYSTEM -->
+<h4 class="section-title mt-4">Smart Tourist Safety System</h4>
+
+<!-- KYC (READ ONLY) -->
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label>ID Type</label>
+        <input class="form-control" value="{{ user.kyc_type or 'Not Provided' }}" readonly>
+    </div>
+    <div class="col-md-8 mb-3">
+        <label>ID Number</label>
+        <input class="form-control" value="{{ user.kyc_id or 'Not Provided' }}" readonly>
+    </div>
+</div>
+
+<!-- EMERGENCY CONTACT (UPDATED) -->
+<h5 class="mt-4">Emergency Contact</h5>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label>Contact Name</label>
+        <input class="form-control"
+               name="emergency_contact_name"
+               value="{{ user.emergency_contact_name or '' }}">
+    </div>
+    <div class="col-md-4 mb-3">
+        <label>Contact Number</label>
+        <input class="form-control"
+               name="emergency_contact_number"
+               value="{{ user.emergency_contact_number or '' }}">
+    </div>
+    <div class="col-md-4 mb-3">
+        <label>Contact Email</label>
+        <input type="email" class="form-control"
+               name="emergency_contact_email"
+               value="{{ user.emergency_contact_email or '' }}"
+               placeholder="family_or_friend@gmail.com">
+        <small class="text-muted">
+            SOS alerts will be sent to this email
+        </small>
+    </div>
+</div>
+
+<!-- SAFETY PREFERENCES -->
+<div class="form-check form-switch mt-3">
+    <input class="form-check-input" type="checkbox"
+           name="tracking_enabled"
+           {% if user.is_real_time_tracking_enabled %}checked{% endif %}>
+    <label class="form-check-label">Enable Real-time Location Tracking</label>
+</div>
+
+<div class="mt-4 text-center">
+    <button type="submit" class="update-btn">
+        Update Profile
+    </button>
+</div>
+
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% block title %}Register - Smart Tourist Safety System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Tourist Registration
+                    </h3>
+                    <p class="mb-0 mt-2">Join the Smart Tourist Safety System for enhanced protection during your travels</p>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary">
+                                    <i class="fas fa-user me-2"></i>Basic Information
+                                </h5>
+                                <hr>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Full Name *
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" required 
+                                       placeholder="Enter your full name">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email Address *
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" required 
+                                       placeholder="your.email@example.com">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-at me-1"></i>Username *
+                                </label>
+                                <input type="text" class="form-control" id="username" name="username" required 
+                                       placeholder="Choose a username">
+                                <div class="form-text">Will be replaced with Digital Tourist ID if KYC is provided</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Password *
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" required 
+                                       placeholder="Create a strong password">
+                            </div>
+                        </div>
+
+                        <!-- Digital Tourist ID Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-success">
+                                    <i class="fas fa-id-card me-2"></i>Digital Tourist ID (Enhanced Security)
+                                </h5>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Optional but Recommended:</strong> Provide KYC information to generate a secure blockchain-based Digital Tourist ID with enhanced safety features including panic button, geo-fencing, and AI monitoring.
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="kyc_type" class="form-label">
+                                    <i class="fas fa-id-badge me-1"></i>ID Document Type
+                                </label>
+                                <select class="form-select" id="kyc_type" name="kyc_type" onchange="toggleKycFields()">
+                                    <option value="">Select ID Type (Optional)</option>
+                                    <option value="aadhaar">Aadhaar Card</option>
+                                    <option value="passport">Passport</option>
+                                    <option value="voter_id">Voter ID Card</option>
+                                    <option value="driving_license">Driving License</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="kyc_id" class="form-label">
+                                    <i class="fas fa-hashtag me-1"></i>ID Number
+                                </label>
+                                <input type="text" class="form-control" id="kyc_id" name="kyc_id" 
+                                       placeholder="Enter your ID number">
+                                <div class="form-text">This information is encrypted and used only for safety purposes</div>
+                            </div>
+                        </div>
+
+                        <!-- Trip & Safety Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-warning">
+                                    <i class="fas fa-map-marked-alt me-2"></i>Trip & Safety Information
+                                </h5>
+                                <hr>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="visit_duration" class="form-label">
+                                    <i class="fas fa-calendar-days me-1"></i>Visit Duration (days)
+                                </label>
+                                <input type="number" class="form-control" id="visit_duration" name="visit_duration" 
+                                       min="1" max="365" value="7" placeholder="7">
+                                <div class="form-text">Digital ID validity period</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="preferred_language" class="form-label">
+                                    <i class="fas fa-language me-1"></i>Preferred Language
+                                </label>
+                                <select class="form-select" id="preferred_language" name="preferred_language">
+                                    <option value="en">English</option>
+                                    <option value="hi">हिन्दी (Hindi)</option>
+                                    <option value="as">অসমীয়া (Assamese)</option>
+                                    <option value="bn">বাংলা (Bengali)</option>
+                                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                                    <option value="ml">മലയാളം (Malayalam)</option>
+                                    <option value="mr">मराठी (Marathi)</option>
+                                    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                                    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                                    <option value="ta">தமிழ் (Tamil)</option>
+                                    <option value="te">తెలుగు (Telugu)</option>
+                                    <option value="ne">नेपाली (Nepali)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="destination_area" class="form-label">
+                                    <i class="fas fa-location-dot me-1"></i>Primary Destination
+                                </label>
+                                <input type="text" class="form-control" id="destination_area" name="destination_area" 
+                                       placeholder="e.g., Guwahati, Assam">
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contacts -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-danger">
+                                    <i class="fas fa-phone-alt me-2"></i>Emergency Contacts
+                                </h5>
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>Important:</strong> Emergency contacts will be automatically notified if you use the panic button or if our AI system detects unusual activity.
+                                </div>
+                                <hr>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="emergency_contact_name" class="form-label">
+                                    <i class="fas fa-user-friends me-1"></i>Emergency Contact Name
+                                </label>
+                                <input type="text" class="form-control" id="emergency_contact_name" 
+                                       name="emergency_contact_name" placeholder="Full name of emergency contact">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_contact_number" class="form-label">
+                                    <i class="fas fa-phone me-1"></i>Emergency Contact Number
+                                </label>
+                                <input type="tel" class="form-control" id="emergency_contact_number" 
+                                       name="emergency_contact_number" placeholder="+91-XXXXXXXXXX">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="emergency_relationship" class="form-label">
+                                    <i class="fas fa-heart me-1"></i>Relationship
+                                </label>
+                                <select class="form-select" id="emergency_relationship" name="emergency_relationship">
+                                    <option value="">Select Relationship</option>
+                                    <option value="family">Family Member</option>
+                                    <option value="spouse">Spouse/Partner</option>
+                                    <option value="parent">Parent</option>
+                                    <option value="sibling">Sibling</option>
+                                    <option value="friend">Friend</option>
+                                    <option value="colleague">Colleague</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="emergency_email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Emergency Contact Email (Optional)
+                                </label>
+                                <input type="email" class="form-control" id="emergency_email" 
+                                       name="emergency_email" placeholder="emergency@email.com">
+                            </div>
+                        </div>
+
+                        <!-- Safety Features Agreement -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-info">
+                                    <i class="fas fa-shield-alt me-2"></i>Safety Features You'll Get:
+                                </h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Panic Button:</strong> One-click emergency alert to authorities and contacts
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Geo-fencing:</strong> Automatic alerts when entering high-risk areas
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>AI Monitoring:</strong> Anomaly detection for unusual travel patterns
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Real-time Tracking:</strong> Optional location sharing with contacts
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Multilingual Support:</strong> Emergency access in your preferred language
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="agree_terms" name="agree_terms" required>
+                                <label class="form-check-label" for="agree_terms">
+                                    I agree to the <a href="#" target="_blank">Terms and Conditions</a> and 
+                                    <a href="#" target="_blank">Privacy Policy</a> of the Smart Tourist Safety System
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="agree_safety" name="agree_safety">
+                                <label class="form-check-label" for="agree_safety">
+                                    I consent to safety monitoring and emergency response features (recommended)
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="agree_tracking" name="agree_tracking">
+                                <label class="form-check-label" for="agree_tracking">
+                                    I agree to optional real-time location tracking for enhanced safety (can be disabled later)
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Create Account & Generate Digital Tourist ID
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <p class="text-muted">
+                                Already have an account? 
+                                <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Login here</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleKycFields() {
+        const kycType = document.getElementById('kyc_type').value;
+        const kycIdField = document.getElementById('kyc_id');
+        
+        if (kycType) {
+            kycIdField.setAttribute('required', '');
+            kycIdField.placeholder = `Enter your ${kycType.replace('_', ' ')} number`;
+        } else {
+            kycIdField.removeAttribute('required');
+            kycIdField.placeholder = 'Enter your ID number';
+        }
+    }
+    
+    // Form validation and preview
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const kycType = document.getElementById('kyc_type').value;
+            const kycId = document.getElementById('kyc_id').value;
+            
+            if (kycType && !kycId) {
+                e.preventDefault();
+                alert('Please enter the ID number for the selected document type.');
+                return false;
+            }
+            
+            if (kycType && kycId) {
+                const confirmed = confirm(
+                    '🆔 Digital Tourist ID will be generated!\n\n' +
+                    'This will create a secure, blockchain-based digital identity ' +
+                    'with enhanced safety features.\n\n' +
+                    'Continue with registration?'
+                );
+                
+                if (!confirmed) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
